@@ -1,0 +1,79 @@
+import csv
+
+# Define a dictionary to store subject grades
+subject_grades = {}
+
+def add_grade(subject, grade):
+    """Add a grade for a subject"""
+    if subject in subject_grades:
+        subject_grades[subject].append(grade)
+    else:
+        subject_grades[subject] = [grade]
+
+def calculate_average(subject):
+    """Calculate the average grade for a subject"""
+    if subject in subject_grades:
+        return sum(subject_grades[subject]) / len(subject_grades[subject])
+    else:
+        return None
+
+def save_to_csv(filename):
+    """Save the grade data to a CSV file"""
+    with open(filename, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(["Subject", "Grades"])
+        for subject, grades in subject_grades.items():
+            writer.writerow([subject, ', '.join(map(str, grades))])
+
+def load_from_csv(filename):
+    """Load the grade data from a CSV file"""
+    global subject_grades
+    subject_grades = {}
+    with open(filename, 'r', newline='') as csvfile:
+        reader = csv.reader(csvfile)
+        next(reader)  # Skip the header row
+        for row in reader:
+            subject = row[0]
+            grades = list(map(float, row[1].split(', ')))
+            subject_grades[subject] = grades
+
+def main():
+    filename = "grades.csv"
+    try:
+        load_from_csv(filename)
+    except FileNotFoundError:
+        pass
+
+    while True:
+        print("\nStudent Grade Tracker")
+        print("1. Add a grade")
+        print("2. Calculate average")
+        print("3. Save to CSV")
+        print("4. Load from CSV")
+        print("5. Quit")
+        choice = input("Choose an option: ")
+
+        if choice == "1":
+            subject = input("Enter the subject: ")
+            grade = float(input("Enter the grade: "))
+            add_grade(subject, grade)
+        elif choice == "2":
+            subject = input("Enter the subject: ")
+            average = calculate_average(subject)
+            if average is not None:
+                print(f"The average grade for {subject} is {average:.2f}")
+            else:
+                print(f"No grades found for {subject}")
+        elif choice == "3":
+            save_to_csv(filename)
+            print("Grades saved to CSV file")
+        elif choice == "4":
+            load_from_csv(filename)
+            print("Grades loaded from CSV file")
+        elif choice == "5":
+            break
+        else:
+            print("Invalid choice. Please choose again.")
+
+if __name__ == "__main__":
+    main()
